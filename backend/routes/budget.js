@@ -166,8 +166,7 @@ router.get('/dashboard', (req, res) => {
       }
     },
     recentTransactions,
-    categoryTotals,
-    bankConnected: !!(settings && settings.account_id)
+    categoryTotals
   });
 });
 

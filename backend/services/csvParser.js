@@ -25,7 +25,7 @@ function findColumnIndex(headers, possibleNames) {
 }
 
 // Converte una stringa/numero data in formato ISO
-function parseDate(dateValue) {
+export function parseDate(dateValue) {
   if (!dateValue) return null;
 
   // Se è un numero (Excel date serial)
@@ -99,7 +99,7 @@ function parseDate(dateValue) {
 }
 
 // Converte una stringa importo in numero
-function parseAmount(amountValue) {
+export function parseAmount(amountValue) {
   if (amountValue === null || amountValue === undefined) return null;
 
   // Se è già un numero

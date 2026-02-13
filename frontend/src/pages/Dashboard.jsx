@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getDashboard, syncTransactions } from '../services/api';
+import { getDashboard } from '../services/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
 function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,18 +25,6 @@ function Dashboard() {
       console.error('Errore caricamento dashboard:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSync = async () => {
-    setSyncing(true);
-    try {
-      await syncTransactions();
-      await loadDashboard();
-    } catch (error) {
-      console.error('Errore sync:', error);
-    } finally {
-      setSyncing(false);
     }
   };
 
@@ -63,7 +50,7 @@ function Dashboard() {
     return <div className="card">Errore nel caricamento</div>;
   }
 
-  const { budget, recentTransactions, bankConnected } = data;
+  const { budget, recentTransactions } = data;
 
   const pieData = [
     { name: 'Necessità', value: budget.necessita_spent, color: '#f59e0b' },
@@ -73,18 +60,6 @@ function Dashboard() {
 
   return (
     <div>
-      {/* Status banca */}
-      <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div className={`status-badge ${bankConnected ? 'status-connected' : 'status-disconnected'}`}>
-          {bankConnected ? '● Banca collegata' : '○ Banca non collegata'}
-        </div>
-        {bankConnected && (
-          <button className="btn btn-secondary" onClick={handleSync} disabled={syncing}>
-            {syncing ? 'Sincronizzazione...' : '🔄 Sincronizza'}
-          </button>
-        )}
-      </div>
-
       {/* Budget Cards */}
       <div className="grid grid-3">
         <div className="card budget-card necessita">

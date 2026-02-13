@@ -3,7 +3,6 @@ import Dashboard from './pages/Dashboard';
 import Transactions from './pages/Transactions';
 import Settings from './pages/Settings';
 import Setup from './pages/Setup';
-import Callback from './pages/Callback';
 
 function App() {
   return (
@@ -30,7 +29,6 @@ function App() {
         <Route path="/transactions" element={<Transactions />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/setup" element={<Setup />} />
-        <Route path="/callback" element={<Callback />} />
       </Routes>
     </div>
   );

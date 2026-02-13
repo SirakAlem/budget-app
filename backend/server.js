@@ -5,10 +5,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import db from './database.js';
-import bankRoutes from './routes/bank.js';
 import transactionRoutes from './routes/transactions.js';
 import budgetRoutes from './routes/budget.js';
-import { initNordigen } from './services/nordigen.js';
 
 dotenv.config();
 
@@ -20,7 +18,7 @@ const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
@@ -28,7 +26,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // Routes
-app.use('/api/bank', bankRoutes);
 app.use('/api/transactions', transactionRoutes);
 app.use('/api/budget', budgetRoutes);
 
@@ -50,7 +47,7 @@ async function start() {
   await db.init();
   console.log('✅ Database inizializzato');
 
-  app.listen(PORT, async () => {
+  app.listen(PORT, () => {
     console.log(`
   ╔════════════════════════════════════════╗
   ║     💰 BUDGET APP - Backend            ║
@@ -59,9 +56,6 @@ async function start() {
   ║  http://localhost:${PORT}                 ║
   ╚════════════════════════════════════════╝
     `);
-
-    // Inizializza connessione Nordigen
-    await initNordigen();
   });
 }
 

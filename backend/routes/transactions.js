@@ -1,24 +1,26 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import * as nordigen from '../services/nordigen.js';
 import { categorize } from '../services/categorizer.js';
 import { parseCSV, parseExcel } from '../services/csvParser.js';
+import { parsePDF } from '../services/pdfParser.js';
 import db from '../database.js';
 
 const router = Router();
 
-// Import CSV/Excel
-router.post('/import-csv', (req, res) => {
+// Import CSV/Excel/PDF
+router.post('/import-csv', async (req, res) => {
   try {
-    const { csvContent, excelBase64, fileType } = req.body;
+    const { csvContent, excelBase64, pdfBase64, fileType } = req.body;
 
-    if (!csvContent && !excelBase64) {
+    if (!csvContent && !excelBase64 && !pdfBase64) {
       return res.status(400).json({ error: 'Contenuto file mancante' });
     }
 
-    // Parse del file (CSV o Excel)
+    // Parse del file (CSV, Excel o PDF)
     let transactions;
-    if (excelBase64 || fileType === 'excel') {
+    if (pdfBase64 || fileType === 'pdf') {
+      transactions = await parsePDF(pdfBase64);
+    } else if (excelBase64 || fileType === 'excel') {
       transactions = parseExcel(excelBase64 || csvContent);
     } else {
       transactions = parseCSV(csvContent);
@@ -57,47 +59,6 @@ router.post('/import-csv', (req, res) => {
   } catch (error) {
     console.error('Errore import CSV:', error);
     res.status(400).json({ error: error.message || 'Errore nel parsing del CSV' });
-  }
-});
-
-// Sincronizza transazioni dalla banca
-router.post('/sync', async (req, res) => {
-  try {
-    const settings = db.prepare('SELECT account_id FROM settings WHERE id = ?').get(1);
-
-    if (!settings || !settings.account_id) {
-      return res.status(400).json({ error: 'Nessun conto collegato' });
-    }
-
-    // Prendi transazioni dell'ultimo mese
-    const fromDate = new Date();
-    fromDate.setMonth(fromDate.getMonth() - 1);
-    const fromDateStr = fromDate.toISOString().split('T')[0];
-
-    const transactions = await nordigen.getTransactions(settings.account_id, fromDateStr);
-
-    let added = 0;
-
-    for (const t of transactions) {
-      const category = categorize(t.description, t.amount);
-      const existing = db.prepare('SELECT id FROM transactions WHERE bank_transaction_id = ?').get(t.id);
-
-      if (!existing) {
-        db.prepare(`
-          INSERT INTO transactions (id, date, amount, description, category, bank_transaction_id)
-          VALUES (?, ?, ?, ?, ?, ?)
-        `).run(uuidv4(), t.date, t.amount, t.description, category, t.id);
-        added++;
-      }
-    }
-
-    // Aggiorna i totali spesi nel budget mensile
-    updateMonthlySpent();
-
-    res.json({ synced: added, total: transactions.length });
-  } catch (error) {
-    console.error('Errore sync:', error);
-    res.status(500).json({ error: 'Errore nella sincronizzazione' });
   }
 });
 
@@ -151,6 +112,19 @@ router.post('/', (req, res) => {
   updateMonthlySpent();
 
   res.json({ id, date, amount, description, category: cat });
+});
+
+// Elimina tutte le transazioni
+router.delete('/all', (req, res) => {
+  try {
+    const count = db.prepare('SELECT COUNT(*) as count FROM transactions').get();
+    db.prepare('DELETE FROM transactions').run();
+    updateMonthlySpent();
+    res.json({ success: true, deleted: count?.count || 0 });
+  } catch (error) {
+    console.error('Errore eliminazione totale:', error);
+    res.status(500).json({ error: 'Errore nell\'eliminazione delle transazioni' });
+  }
 });
 
 // Elimina transazione

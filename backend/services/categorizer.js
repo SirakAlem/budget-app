@@ -14,6 +14,8 @@ const CATEGORIES = {
     // Trasporti necessari
     'benzina', 'diesel', 'carburante', 'eni station', 'q8', 'ip',
     'atm', 'atac', 'trenitalia', 'italo', 'abbonamento trasporti',
+    // Ricariche cellulare
+    'ricarica', 'top up',
     // Salute
     'farmacia', 'parafarmacia', 'medico', 'dottore', 'ospedale', 'asl',
     // Assicurazioni
@@ -35,7 +37,13 @@ const CATEGORIES = {
     // Sport/Hobby
     'palestra', 'fitness', 'decathlon', 'sport',
     // Viaggi
-    'hotel', 'booking', 'airbnb', 'ryanair', 'easyjet', 'alitalia'
+    'hotel', 'booking', 'airbnb', 'ryanair', 'easyjet', 'alitalia',
+    // Scommesse/Gioco
+    'betflag', 'bet365', 'sisal', 'lottomatica', 'snai', 'goldbet', 'scommess',
+    // Distributori automatici
+    'distrib.automati', 'argenta', 'distributore',
+    // Tabacchi
+    'tabacchi', 'tabacch'
   ],
   entrata: [
     'stipendio', 'salario', 'bonifico in entrata', 'accredito',
@@ -61,8 +69,8 @@ export function categorize(description, amount) {
     }
   }
 
-  // Se non trova nulla, default a svago (meglio essere conservativi)
-  return 'non_categorizzato';
+  // Se non trova nulla, default a svago
+  return 'svago';
 }
 
 // Suggerisci categoria in base allo storico

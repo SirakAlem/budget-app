@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getTransactions, addTransaction, updateTransaction, deleteTransaction, importCSV } from '../services/api';
+import { getTransactions, addTransaction, updateTransaction, deleteTransaction, deleteAllTransactions, importCSV } from '../services/api';
 
 function Transactions() {
   const [transactions, setTransactions] = useState([]);
@@ -75,6 +75,19 @@ function Transactions() {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (!confirm('Sei sicuro di voler eliminare TUTTE le transazioni? Questa azione non è reversibile.')) return;
+
+    try {
+      const response = await deleteAllTransactions();
+      alert(`Eliminate ${response.data.deleted} transazioni.`);
+      loadTransactions();
+    } catch (error) {
+      console.error('Errore eliminazione totale:', error);
+      alert('Errore durante l\'eliminazione');
+    }
+  };
+
   const handleFileSelect = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -85,11 +98,12 @@ function Transactions() {
     try {
       const fileName = file.name.toLowerCase();
       const isExcel = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+      const isPDF = fileName.endsWith('.pdf');
 
       let requestData;
 
-      if (isExcel) {
-        // Leggi come base64 per Excel
+      if (isExcel || isPDF) {
+        // Leggi come base64 per Excel e PDF
         const base64 = await new Promise((resolve, reject) => {
           const reader = new FileReader();
           reader.onload = () => {
@@ -99,7 +113,11 @@ function Transactions() {
           reader.onerror = reject;
           reader.readAsDataURL(file);
         });
-        requestData = { excelBase64: base64, fileType: 'excel' };
+        if (isPDF) {
+          requestData = { pdfBase64: base64, fileType: 'pdf' };
+        } else {
+          requestData = { excelBase64: base64, fileType: 'excel' };
+        }
       } else {
         // Leggi come testo per CSV
         const text = await file.text();
@@ -149,13 +167,18 @@ function Transactions() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 10 }}>
         <h2>📝 Transazioni</h2>
-        <div style={{ display: 'flex', gap: 10 }}>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           <button className="btn btn-secondary" onClick={() => setShowImportModal(true)}>
-            📄 Importa CSV
+            📄 Importa File
           </button>
           <button className="btn btn-primary" onClick={() => setShowModal(true)}>
             + Aggiungi Manuale
           </button>
+          {transactions.length > 0 && (
+            <button className="btn btn-danger" onClick={handleDeleteAll}>
+              🗑️ Cancella Tutte
+            </button>
+          )}
         </div>
       </div>
 
@@ -212,11 +235,11 @@ function Transactions() {
       {showImportModal && (
         <div className="modal-overlay" onClick={() => setShowImportModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h3 className="modal-title">📄 Importa CSV dalla Banca</h3>
+            <h3 className="modal-title">📄 Importa Movimenti dalla Banca</h3>
 
             <div style={{ marginBottom: 20 }}>
               <p style={{ color: 'var(--text-muted)', marginBottom: 16 }}>
-                Scarica i movimenti dal sito della tua banca in formato CSV e caricali qui.
+                Scarica i movimenti dal sito della tua banca e caricali qui. Sono supportati i formati CSV, Excel e PDF.
               </p>
 
               <div style={{ background: 'var(--bg)', padding: 20, borderRadius: 12, marginBottom: 20 }}>
@@ -224,7 +247,7 @@ function Transactions() {
                 <ol style={{ color: 'var(--text-muted)', paddingLeft: 20, lineHeight: 1.8 }}>
                   <li>Vai sul sito/app della tua banca</li>
                   <li>Cerca "Esporta movimenti" o "Scarica estratto conto"</li>
-                  <li>Scegli il formato <strong>CSV</strong> o <strong>Excel</strong></li>
+                  <li>Scegli il formato <strong>CSV</strong>, <strong>Excel</strong> o <strong>PDF</strong></li>
                   <li>Carica il file qui sotto</li>
                 </ol>
               </div>
@@ -232,7 +255,7 @@ function Transactions() {
               <input
                 type="file"
                 ref={fileInputRef}
-                accept=".csv,.CSV,.txt,.xlsx,.xls,.XLSX,.XLS"
+                accept=".csv,.CSV,.txt,.xlsx,.xls,.XLSX,.XLS,.pdf,.PDF"
                 onChange={handleFileSelect}
                 style={{ display: 'none' }}
               />
@@ -243,7 +266,7 @@ function Transactions() {
                 disabled={importing}
                 style={{ width: '100%', padding: 16 }}
               >
-                {importing ? '⏳ Importazione in corso...' : '📁 Seleziona file CSV'}
+                {importing ? '⏳ Importazione in corso...' : '📁 Seleziona file (CSV, Excel, PDF)'}
               </button>
 
               {importResult && (
