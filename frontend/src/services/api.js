@@ -10,7 +10,7 @@ const api = axios.create({
 // Budget & Settings
 export const getSettings = () => api.get('/budget/settings');
 export const updateSettings = (data) => api.put('/budget/settings', data);
-export const getDashboard = () => api.get('/budget/dashboard');
+export const getDashboard = (month) => api.get(`/budget/dashboard${month ? `?month=${month}` : ''}`);
 export const getMonthlyBudget = (month) => api.get(`/budget/monthly${month ? `?month=${month}` : ''}`);
 
 // Transactions

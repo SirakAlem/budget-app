@@ -102,7 +102,7 @@ router.get('/monthly', (req, res) => {
 
 // Dashboard - riepilogo completo
 router.get('/dashboard', (req, res) => {
-  const currentMonth = new Date().toISOString().slice(0, 7);
+  const currentMonth = req.query.month || new Date().toISOString().slice(0, 7);
 
   // Impostazioni
   const settings = db.prepare('SELECT * FROM settings WHERE id = ?').get(1) || {};

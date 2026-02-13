@@ -3,18 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { getDashboard } from '../services/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts';
 
+const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
+
 function Dashboard() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(getCurrentMonth());
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadDashboard();
-  }, []);
+    loadDashboard(selectedMonth);
+  }, [selectedMonth]);
 
-  const loadDashboard = async () => {
+  const loadDashboard = async (month) => {
+    setLoading(true);
     try {
-      const response = await getDashboard();
+      const response = await getDashboard(month);
       setData(response.data);
 
       // Se non ha impostato lo stipendio, vai al setup
@@ -28,7 +32,20 @@ function Dashboard() {
     }
   };
 
+  const changeMonth = (offset) => {
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const date = new Date(year, month - 1 + offset, 1);
+    setSelectedMonth(date.toISOString().slice(0, 7));
+  };
+
+  const formatMonth = (monthStr) => {
+    const [year, month] = monthStr.split('-');
+    const date = new Date(year, month - 1);
+    return date.toLocaleDateString('it-IT', { month: 'long', year: 'numeric' });
+  };
+
   const getProgressClass = (spent, budget) => {
+    if (!budget) return 'good';
     const percent = (spent / budget) * 100;
     if (percent >= 90) return 'danger';
     if (percent >= 70) return 'warning';
@@ -58,8 +75,28 @@ function Dashboard() {
     { name: 'Risparmio', value: budget.risparmio_budget, color: '#22c55e' }
   ];
 
+  const isCurrentMonth = selectedMonth === getCurrentMonth();
+
   return (
     <div>
+      {/* Selettore Mese */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+        <button className="btn btn-secondary" onClick={() => changeMonth(-1)} style={{ padding: '8px 16px' }}>
+          ◀
+        </button>
+        <h2 style={{ margin: 0, textTransform: 'capitalize', minWidth: 200, textAlign: 'center' }}>
+          {formatMonth(selectedMonth)}
+        </h2>
+        <button
+          className="btn btn-secondary"
+          onClick={() => changeMonth(1)}
+          disabled={isCurrentMonth}
+          style={{ padding: '8px 16px', opacity: isCurrentMonth ? 0.3 : 1 }}
+        >
+          ▶
+        </button>
+      </div>
+
       {/* Budget Cards */}
       <div className="grid grid-3">
         <div className="card budget-card necessita">
@@ -71,7 +108,7 @@ function Dashboard() {
           <div className="progress-bar">
             <div
               className={`progress-fill ${getProgressClass(budget.necessita_spent, budget.necessita_budget)}`}
-              style={{ width: `${Math.min((budget.necessita_spent / budget.necessita_budget) * 100, 100)}%` }}
+              style={{ width: `${budget.necessita_budget ? Math.min((budget.necessita_spent / budget.necessita_budget) * 100, 100) : 0}%` }}
             />
           </div>
         </div>
@@ -85,7 +122,7 @@ function Dashboard() {
           <div className="progress-bar">
             <div
               className={`progress-fill ${getProgressClass(budget.svago_spent, budget.svago_budget)}`}
-              style={{ width: `${Math.min((budget.svago_spent / budget.svago_budget) * 100, 100)}%` }}
+              style={{ width: `${budget.svago_budget ? Math.min((budget.svago_spent / budget.svago_budget) * 100, 100) : 0}%` }}
             />
           </div>
         </div>
@@ -129,7 +166,7 @@ function Dashboard() {
         <div className="card">
           <h3 style={{ marginBottom: 20 }}>📝 Ultime Transazioni</h3>
           {recentTransactions.length === 0 ? (
-            <p style={{ color: 'var(--text-muted)' }}>Nessuna transazione questo mese</p>
+            <p style={{ color: 'var(--text-muted)' }}>Nessuna transazione in questo mese</p>
           ) : (
             <ul className="transaction-list">
               {recentTransactions.slice(0, 5).map(t => (
