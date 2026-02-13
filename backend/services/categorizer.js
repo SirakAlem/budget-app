@@ -1,53 +1,73 @@
-// Categorie automatiche basate su parole chiave
+// Categorie automatiche basate sul budget personale
 const CATEGORIES = {
   necessita: [
-    // Supermercati
+    // Supermercati / Spesa
     'esselunga', 'conad', 'coop', 'lidl', 'eurospin', 'carrefour', 'aldi',
     'penny', 'pam', 'despar', 'md discount', 'tigre', 'famila', 'iper',
-    'supermercato', 'market', 'alimentari', 'spesa',
-    // Bollette
+    'supermercato', 'market', 'alimentari', 'spesa', 'alimentare',
+    'todis', 'simply', 'bennet', 'eataly', 'natura si',
+    // Bollette / Utenze
     'enel', 'eni', 'edison', 'a2a', 'hera', 'iren', 'acea', 'sorgenia',
-    'luce', 'gas', 'elettricita', 'bolletta', 'utenze',
+    'luce', 'gas', 'elettricita', 'bolletta', 'utenze', 'energia',
+    // Telefonia
     'tim', 'vodafone', 'wind', 'tre', 'iliad', 'fastweb', 'telefono',
-    // Affitto/Casa
-    'affitto', 'mutuo', 'condominio', 'amministratore',
-    // Trasporti necessari
+    'ho mobile', 'kena', 'very mobile', 'poste mobile', 'lycamobile',
+    'ricarica', 'top up',
+    // Mutuo / Affitto / Casa
+    'affitto', 'mutuo', 'condominio', 'amministratore', 'canone',
+    // Trasporti
     'benzina', 'diesel', 'carburante', 'eni station', 'q8', 'ip',
     'atm', 'atac', 'trenitalia', 'italo', 'abbonamento trasporti',
-    // Ricariche cellulare
-    'ricarica', 'top up',
-    // Salute
+    'autobus', 'metro', 'treno', 'autostrada', 'telepass', 'parcheggio',
+    'taxi', 'uber', 'bolt', 'freenow',
+    // Salute / Spese mediche
     'farmacia', 'parafarmacia', 'medico', 'dottore', 'ospedale', 'asl',
+    'dentista', 'oculista', 'visita medica', 'analisi', 'ricetta',
     // Assicurazioni
-    'assicurazione', 'unipol', 'generali', 'allianz', 'axa', 'zurich'
+    'assicurazione', 'unipol', 'generali', 'allianz', 'axa', 'zurich',
+    // Interessi / Investimenti
+    'investiment', 'interessi', 'fondo pensione'
   ],
   svago: [
-    // Ristoranti/Bar
-    'ristorante', 'pizzeria', 'trattoria', 'osteria', 'bar', 'pub',
+    // Ristoranti / Bar / Uscite
+    'ristorante', 'pizzeria', 'trattoria', 'osteria', 'bar ', 'pub',
     'mcdonald', 'burger king', 'kfc', 'starbucks', 'domino',
     'deliveroo', 'glovo', 'just eat', 'uber eats',
-    // Intrattenimento
+    'pranzo', 'cena', 'aperitivo', 'cocktail',
+    // Intrattenimento / Abbonamenti online
     'netflix', 'spotify', 'disney', 'amazon prime', 'dazn', 'now tv',
     'playstation', 'xbox', 'nintendo', 'steam', 'epic games',
-    'cinema', 'teatro', 'concerto', 'museo', 'mostra',
-    // Shopping non essenziale
+    'apple music', 'youtube', 'twitch', 'crunchyroll',
+    'cinema', 'teatro', 'concerto', 'museo', 'mostra', 'evento',
+    // Shopping / Abbigliamento
     'zara', 'h&m', 'primark', 'zalando', 'asos', 'shein',
-    'mediaworld', 'unieuro', 'euronics', 'expert',
-    'amazon', 'ebay', 'aliexpress',
-    // Sport/Hobby
-    'palestra', 'fitness', 'decathlon', 'sport',
+    'nike', 'adidas', 'puma', 'uniqlo', 'pull&bear', 'bershka',
+    'ovs', 'terranova', 'intimissimi', 'calzedonia',
+    // Amazon / E-commerce
+    'amazon', 'ebay', 'aliexpress', 'temu', 'wish',
+    // Elettronica
+    'mediaworld', 'unieuro', 'euronics', 'expert', 'apple store',
+    // Sport / Palestra
+    'palestra', 'fitness', 'decathlon', 'sport', 'crossfit', 'piscina',
     // Viaggi
     'hotel', 'booking', 'airbnb', 'ryanair', 'easyjet', 'alitalia',
-    // Scommesse/Gioco
-    'betflag', 'bet365', 'sisal', 'lottomatica', 'snai', 'goldbet', 'scommess',
+    'wizz air', 'vueling', 'flixbus', 'hostel',
+    // Libri / Cultura
+    'libreria', 'feltrinelli', 'mondadori', 'ibs', 'kindle', 'libro',
+    // Beauty / Cura personale
+    'beauty', 'sephora', 'kiko', 'douglas', 'parrucchiere', 'barbiere',
+    'estetica', 'nail', 'profumeria',
+    // Scommesse / Gioco
+    'betflag', 'bet365', 'sisal', 'lottomatica', 'snai', 'goldbet',
+    'scommess', 'pokerstars', 'betfair', 'eurobet',
     // Distributori automatici
     'distrib.automati', 'argenta', 'distributore',
     // Tabacchi
-    'tabacchi', 'tabacch'
+    'tabacchi', 'tabacch', 'fortunato'
   ],
   entrata: [
-    'stipendio', 'salario', 'bonifico in entrata', 'accredito',
-    'rimborso', 'cashback'
+    'stipendio', 'salario', 'bonifico a vostro favore', 'accredito',
+    'rimborso', 'cashback', 'bonifico in entrata'
   ]
 };
 
